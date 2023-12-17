@@ -1,0 +1,20 @@
+{
+    "name": "KirklandData",
+    "description": "KirklandData.com Testing",
+    "image": "heroku/python",
+    "repository": "https://github.com/AaronJacobson/kirklanddatadotcom",
+    "keywords": ["python", "django"],
+    "env": {
+      "DJANGO_SECRET_KEY": {
+        "description": "The secret key for the Django application.",
+        "generator": "secret"
+      }
+    },
+    "environments": {
+      "test": {
+        "scripts": {
+          "test": "./manage.py test --debug-mode"
+        }
+      }
+    }
+  }
