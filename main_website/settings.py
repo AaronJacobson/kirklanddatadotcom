@@ -69,7 +69,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "hello",
+    "main_view",
 ]
 
 MIDDLEWARE = [
@@ -87,7 +87,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "gettingstarted.urls"
+ROOT_URLCONF = "main_website.urls"
 
 TEMPLATES = [
     {
@@ -105,7 +105,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "gettingstarted.wsgi.application"
+WSGI_APPLICATION = "main_website.wsgi.application"
 
 
 # Database
