@@ -20,9 +20,9 @@ fig = px.line(
 )
 layout = html.Div(
     children=[
-        dcc.Markdown("# Permitting Time"),
+        dcc.Markdown("# Permitting Time (WIP)"),
         html.Hr(),
-        dcc.Markdown("Work In Progress"),
+        # dcc.Markdown("Work In Progress"),
         dcc.Graph(id="sf_permitting_time_graph", figure=fig),
     ]
 )
