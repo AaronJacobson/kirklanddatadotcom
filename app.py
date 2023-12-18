@@ -37,6 +37,16 @@ app.layout = dbc.Container(
                 )
             ]
         ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    html.Div(
+                        "Aaron Jacobson",
+                        style={"textAlign": "center"},
+                    )
+                )
+            ]
+        ),
         html.Hr(),
         dbc.Row(
             [
