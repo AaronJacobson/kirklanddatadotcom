@@ -38,30 +38,29 @@ for page in pages:
         other_pages.append(page)
 
 navbar = dbc.NavbarSimple(
-    children=
-        [
-            dbc.NavItem(dbc.NavLink(page["name"], href=page["path"])) for page in highlight_pages
-        ] +
-        [
-            # dbc.DropdownMenu(
-            #     children=[
-            #         dbc.NavLink(
-            #             [
-            #                 html.Div(
-            #                     page["name"], style={"color": "grey"}, className="ms-2"
-            #                 ),
-            #             ],
-            #             href=page["path"],
-            #             active="exact",
-            #         )
-            #         for page in other_pages
-            #     ],
-            #     nav=True,
-            #     in_navbar=True,
-            #     label="Other Projects",
-            # ),
-        ]
-    ,
+    children=[
+        dbc.NavItem(dbc.NavLink(page["name"], href=page["path"]))
+        for page in highlight_pages
+    ]
+    + [
+        # dbc.DropdownMenu(
+        #     children=[
+        #         dbc.NavLink(
+        #             [
+        #                 html.Div(
+        #                     page["name"], style={"color": "grey"}, className="ms-2"
+        #                 ),
+        #             ],
+        #             href=page["path"],
+        #             active="exact",
+        #         )
+        #         for page in other_pages
+        #     ],
+        #     nav=True,
+        #     in_navbar=True,
+        #     label="Other Projects",
+        # ),
+    ],
     brand="KirklandData",
     brand_href="/",
     color="primary",

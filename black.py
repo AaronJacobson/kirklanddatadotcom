@@ -3,3 +3,4 @@ DEFAULT_EXCLUDES = (
     "requirements.txt",
     "runtime.txt",
 )
+DEFAULT_LINE_LENGTH = 100

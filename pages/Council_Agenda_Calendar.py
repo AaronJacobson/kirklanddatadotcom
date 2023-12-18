@@ -21,6 +21,9 @@ layout = html.Div(
             Here is an example of what the beginning of those emails look like:
             """
         ),
-        html.Img(src="assets/council_agenda_calendar_email.png", style={"width": "613px", "height": "786px"}),
+        html.Img(
+            src="assets/council_agenda_calendar_email.png",
+            style={"width": "613px", "height": "786px"},
+        ),
     ]
 )
