@@ -1,8 +1,9 @@
 import dash
 import pandas as pd
 import plotly.express as px
-from pages.config import PERMIT_TIME_URL
 from dash import dcc, html
+
+from pages.config import PERMIT_TIME_URL
 
 dash.register_page(__name__)
 

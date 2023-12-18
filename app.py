@@ -3,8 +3,8 @@
 
 
 import dash
-from dash import Dash, dcc, html
 import dash_bootstrap_components as dbc
+from dash import Dash, dcc, html
 
 app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.SPACELAB])
 server = app.server
