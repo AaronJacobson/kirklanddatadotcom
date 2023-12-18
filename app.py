@@ -24,6 +24,41 @@ sidebar = dbc.Nav(
     pills=True,
     className="bg-light",
 )
+pages = dash.page_registry.values()
+home_page = None
+other_pages = []
+for page in pages:
+    if page["name"] == "Home":
+        home_page = page
+    else:
+        other_pages.append(page)
+
+navbar = dbc.NavbarSimple(
+    children=[
+        dbc.NavItem(dbc.NavLink(home_page["name"], href=home_page["path"])),
+        dbc.DropdownMenu(
+            children=[
+                dbc.NavLink(
+                    [
+                        html.Div(
+                            page["name"], style={"color": "grey"}, className="ms-2"
+                        ),
+                    ],
+                    href=page["path"],
+                    active="exact",
+                )
+                for page in other_pages
+            ],
+            nav=True,
+            in_navbar=True,
+            label="Projects",
+        ),
+    ],
+    brand="KirklandData",
+    brand_href="/",
+    color="primary",
+    dark=True,
+)
 
 app.layout = dbc.Container(
     [
@@ -32,26 +67,19 @@ app.layout = dbc.Container(
                 dbc.Col(
                     html.Div(
                         "KirklandData",
-                        style={"fontSize": 50, "textAlign": "center"},
-                    )
+                        style={"fontSize": "2rem", "textAlign": "center"},
+                    ),
                 )
             ]
         ),
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.Div(
-                        "Aaron Jacobson",
-                        style={"textAlign": "center"},
-                    )
-                )
-            ]
-        ),
+        dbc.Row([dbc.Col([navbar])]),
         html.Hr(),
         dbc.Row(
             [
-                dbc.Col([sidebar], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2),
-                dbc.Col([dash.page_container], xs=8, sm=8, md=10, lg=10, xl=10, xxl=10),
+                # dbc.Col([sidebar], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2),
+                dbc.Col(
+                    [dash.page_container], xs=12, sm=12, md=12, lg=12, xl=12, xxl=12
+                ),
             ]
         ),
     ],
