@@ -14,7 +14,7 @@ layout = html.Div(
             The current agenda calendar can be found here: [https://www.kirklandwa.gov/files/sharedassets/public/city-council/agenda-calendar/ccsched.pdf](https://www.kirklandwa.gov/files/sharedassets/public/city-council/agenda-calendar/ccsched.pdf)
             Unfortunately, the city does not send notifications when this calendar is updated.
             
-            I've created a system to regularly check the agenda calendar and send email summaries of changes whenever updates are published. You can sign up to receive these emails by adding yourself to this Google Group: [https://groups.google.com/g/kirkland-council-agenda-calendar-updates](https://groups.google.com/g/kirkland-council-agenda-calendar-updates)
+            So, I've created a system to regularly check the agenda calendar and send email summaries of changes whenever updates are published. You can sign up to receive these emails by adding yourself to this Google Group: [https://groups.google.com/g/kirkland-council-agenda-calendar-updates](https://groups.google.com/g/kirkland-council-agenda-calendar-updates)
             
             The only emails this group will be used for are the automated agenda calendar summary emails which happen about 4 times a month. 
             
