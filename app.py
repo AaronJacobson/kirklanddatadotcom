@@ -25,10 +25,14 @@ sidebar = dbc.Nav(
     className="bg-light",
 )
 pages = dash.page_registry.values()
+highlight_names = ["Council agenda calendar"]
+ignore_pages = ["Home"]
 home_page = None
 other_pages = []
 for page in pages:
-    if page["name"] == "Home":
+    if page["name"] in ignore_pages:
+        continue
+    if page["name"] in highlight_names:
         home_page = page
     else:
         other_pages.append(page)
@@ -51,7 +55,7 @@ navbar = dbc.NavbarSimple(
             ],
             nav=True,
             in_navbar=True,
-            label="Projects",
+            label="Other Projects",
         ),
     ],
     brand="KirklandData",
@@ -62,16 +66,6 @@ navbar = dbc.NavbarSimple(
 
 app.layout = dbc.Container(
     [
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.Div(
-                        "KirklandData",
-                        style={"fontSize": "2rem", "textAlign": "center"},
-                    ),
-                )
-            ]
-        ),
         dbc.Row([dbc.Col([navbar])]),
         html.Hr(),
         dbc.Row(
