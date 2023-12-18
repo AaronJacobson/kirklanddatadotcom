@@ -6,7 +6,7 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Dash, dcc, html
 
-app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.SPACELAB])
+app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.ZEPHYR])
 server = app.server
 
 sidebar = dbc.Nav(
