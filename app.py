@@ -2,40 +2,51 @@
 # visit http://127.0.0.1:8050/ in your web browser.
 
 
-from dash import Dash, html, dcc
-import plotly.express as px
-import pandas as pd
+import dash
+from dash import Dash, dcc, html
+import dash_bootstrap_components as dbc
 
-app = Dash(__name__)
+app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.SPACELAB])
 server = app.server
 
-# assume you have a "long-form" data frame
-# see https://plotly.com/python/px-arguments/ for more options
-df = pd.read_parquet("https://kirklanddatastorage.blob.core.windows.net/kirklanddata/kirkland_sf_timeseries.parquet")
-df["city"] = "Kirkland"
-
-fig = px.line(
-    data_frame=df,
-    x="date",
-    y="Median Permit Issue Time",
-    color="city",
-    # hover_name="city",
-    line_shape="linear",
-    title="Median New Single Family Permit Issue Time",
+sidebar = dbc.Nav(
+    [
+        dbc.NavLink(
+            [
+                html.Div(page["name"], className="ms-2"),
+            ],
+            href=page["path"],
+            active="exact",
+        )
+        for page in dash.page_registry.values()
+    ],
+    vertical=True,
+    pills=True,
+    className="bg-light",
 )
 
-app.layout = html.Div(children=[
-    html.H1(children='Kirkland Data'),
+app.layout = dbc.Container(
+    [
+        dbc.Row(
+            [
+                dbc.Col(
+                    html.Div(
+                        "KirklandData",
+                        style={"fontSize": 50, "textAlign": "center"},
+                    )
+                )
+            ]
+        ),
+        html.Hr(),
+        dbc.Row(
+            [
+                dbc.Col([sidebar], xs=4, sm=4, md=2, lg=2, xl=2, xxl=2),
+                dbc.Col([dash.page_container], xs=8, sm=8, md=10, lg=10, xl=10, xxl=10),
+            ]
+        ),
+    ],
+    fluid=True,
+)
 
-    # html.Div(children='''
-    #     Dash: A web application framework for your data.
-    # '''),
-
-    dcc.Graph(
-        id='sf_permitting_time_graph',
-        figure=fig
-    )
-])
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
