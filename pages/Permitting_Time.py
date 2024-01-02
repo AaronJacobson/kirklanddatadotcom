@@ -2,6 +2,7 @@ import dash
 import pandas as pd
 import plotly.express as px
 from dash import Input, Output, callback, dcc, html
+from plotly.subplots import make_subplots
 
 from pages.config import PERMIT_TIME_URL
 
@@ -14,15 +15,6 @@ df = pd.read_parquet(PERMIT_TIME_URL).rename(
     axis=1,
 )
 df = df[df["city"] != "Auburn"]
-
-check_list = dcc.Checklist(
-    id="city_checklist",
-    options=[{"label": city, "value": city} for city in df["city"].unique()],
-    value=["Kirkland"],
-    className="city_container",
-    inputClassName="city_input",
-    labelClassName="label_input",
-)
 
 kirkland_graph = px.line(
     data_frame=df[df["city"] == "Kirkland"],
@@ -40,6 +32,63 @@ bellevue_graph = px.line(
     line_shape="linear",
     title="Median New Single Family Permit Issue Time In Bellevue",
 )
+full_timing_graph = px.line(
+    data_frame=df,
+    x="date",
+    y="Median Permit Issue Time (Days)",
+    color="city",
+    line_shape="linear",
+    title="Median New Single Family Permit Issue Time",
+)
+full_timing_graph.update_traces(visible="legendonly")
+full_timing_graph.data[3].visible = True
+full_applications_graph = px.line(
+    data_frame=df,
+    x="date",
+    y="Number of Applications",
+    color="city",
+    line_shape="linear",
+    title="Number of New Single Family Permit Applications in the Last Year",
+)
+full_applications_graph.update_traces(visible="legendonly")
+full_applications_graph.data[3].visible = True
+
+df_issaquah_timing = df[df["city"] == "Issaquah"].copy()
+df_issaquah_timing["color"] = "Permit Issue Time"
+issaquah_timing = px.line(
+    data_frame=df_issaquah_timing,
+    x="date",
+    y="Median Permit Issue Time (Days)",
+    color="color",
+    line_shape="linear",
+    title="Issaquah Median New Single Family Permit Issue Time In Issaquah",
+)
+df_issaquah_applications = df[df["city"] == "Issaquah"]
+df_issaquah_applications["color"] = "Number of Applications"
+issaquah_applications = px.line(
+    data_frame=df_issaquah_applications,
+    x="date",
+    y="Number of Applications",
+    color="color",
+    line_shape="linear",
+    title="Issaquah: Number of New Single Family Permit Applications in the Last Year",
+)
+drop_down = dcc.Dropdown(
+    id="city_combined_dropdown",
+    options=[{"label": city, "value": city} for city in df["city"].unique()],
+    value="Kirkland",
+    className="city_combined_container",
+)
+
+subplot_fig = make_subplots(specs=[[{"secondary_y": True}]])
+issaquah_applications.update_traces(yaxis="y2")
+subplot_fig.add_traces(issaquah_timing.data + issaquah_applications.data)
+subplot_fig.update_layout(
+    title="Issaquah: Permit Issue Time vs. Number of Applications",
+    yaxis=dict(title="Median Permit Issue Time (Days)"),
+    yaxis2=dict(title="Number of Applications"),
+)
+subplot_fig.for_each_trace(lambda t: t.update(line=dict(color=t.marker.color)))
 
 layout = html.Div(
     children=[
@@ -106,8 +155,32 @@ layout = html.Div(
             in a 365 day lookback window from the date show on the x-axis.
             """
         ),
-        check_list,
-        dcc.Graph(id="sf_permitting_time_graph"),
+        dcc.Graph(id="full_timing_graph", figure=full_timing_graph),
+        dcc.Markdown(
+            """
+            ## Number of Applications
+            A large number of applications submitted in a short window could explain the (short term) spikes we've seen in permit issue times in various cities. However,
+            the number of single family permit applications seen in each jurisdiction doesn't explain all of the variation in permit issue time.
+
+            Issaquah, for example, saw a large number of applications for single family permits from 2003 to 2006 but didn't see a large increase in permit issue times 
+            until 2008.
+            """
+        ),
+        dcc.Graph(id="issaquah_combined_plot", figure=subplot_fig),
+        dcc.Markdown(
+            """
+            In general, the difference in the exact timing of increases in applications and increases in permitting times suggest other factors such as staffing and/or 
+            policy changes have a bigger impact of permitting timelines than just the volume of single family permit applications.
+            """
+        ),
+        drop_down,
+        dcc.Graph(id="combined_plot"),
+        dcc.Markdown(
+            """
+            For completeness, here is a graph that allows you to compare the number of single family permit applications across jurisdictions over time.
+            """
+        ),
+        dcc.Graph(id="full_applications_graph", figure=full_applications_graph),
         dcc.Markdown(
             """
             The data shown here comes from public records requests submitted around June/July 2023.
@@ -127,19 +200,40 @@ layout = html.Div(
 
 
 @callback(
-    Output(component_id="sf_permitting_time_graph", component_property="figure"),
-    [Input(component_id="city_checklist", component_property="value")],
+    Output(component_id="combined_plot", component_property="figure"),
+    [Input(component_id="city_combined_dropdown", component_property="value")],
 )
-def update_graph(options_chosen):
-    df_filtered = df[df["city"].isin(options_chosen)]
+def update_combined_graph(option_chosen):
+    df_filtered = df[df["city"] == option_chosen]
+    df_filtered_timing = df_filtered[["date", "Median Permit Issue Time (Days)"]].copy()
+    df_filtered_timing["color"] = "Permit Issue Time"
+    df_filtered_applications = df_filtered[["date", "Number of Applications"]].copy()
+    df_filtered_applications["color"] = "Number of Applications"
 
-    line_chart = px.line(
-        data_frame=df_filtered,
+    timing_graph = px.line(
+        data_frame=df_filtered_timing,
         x="date",
         y="Median Permit Issue Time (Days)",
-        color="city",
+        color="color",
         line_shape="linear",
-        title="Median New Single Family Permit Issue Time",
+        title="Median New Single Family Permit Issue Time In Kirkland",
     )
+    applications_graph = px.line(
+        data_frame=df_filtered_applications,
+        x="date",
+        y="Number of Applications",
+        color="color",
+        line_shape="linear",
+        title="Number of New Single Family Permit Applications in the Last Year",
+    )
+    subplot_fig = make_subplots(specs=[[{"secondary_y": True}]])
+    applications_graph.update_traces(yaxis="y2")
+    subplot_fig.add_traces(timing_graph.data + applications_graph.data)
+    subplot_fig.update_layout(
+        title=f"{option_chosen}: Permit Issue Time vs. Number of Applications",
+        yaxis=dict(title="Median Permit Issue Time (Days)"),
+        yaxis2=dict(title="Number of Applications"),
+    )
+    subplot_fig.for_each_trace(lambda t: t.update(line=dict(color=t.marker.color)))
 
-    return line_chart
+    return subplot_fig
