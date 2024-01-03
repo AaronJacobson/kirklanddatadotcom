@@ -1,6 +1,7 @@
 import dash
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 from dash import Input, Output, callback, dcc, html
 from plotly.subplots import make_subplots
 
@@ -16,6 +17,21 @@ df = pd.read_parquet(PERMIT_TIME_URL).rename(
 )
 df = df[df["city"] != "Auburn"]
 
+made_by_watermark = go.layout.Template()
+made_by_watermark.layout.annotations = [
+    {
+        "name": "made_by_watermark",
+        "text": "Made by Aaron Jacobson, aaron@kirklanddata.com",
+        "opacity": 0.75,
+        "font": {"color": "black", "size": 12},
+        "xref": "paper",
+        "yref": "paper",
+        "x": 0.5,
+        "y": 0.95,
+        "showarrow": False,
+    }
+]
+
 kirkland_graph = px.line(
     data_frame=df[df["city"] == "Kirkland"],
     x="date",
@@ -24,6 +40,7 @@ kirkland_graph = px.line(
     line_shape="linear",
     title="Median New Single Family Permit Issue Time In Kirkland",
 )
+kirkland_graph.update_layout(template=made_by_watermark)
 bellevue_graph = px.line(
     data_frame=df[df["city"] == "Bellevue"],
     x="date",
@@ -32,6 +49,7 @@ bellevue_graph = px.line(
     line_shape="linear",
     title="Median New Single Family Permit Issue Time In Bellevue",
 )
+bellevue_graph.update_layout(template=made_by_watermark)
 full_timing_graph = px.line(
     data_frame=df,
     x="date",
@@ -40,6 +58,7 @@ full_timing_graph = px.line(
     line_shape="linear",
     title="Median New Single Family Permit Issue Time",
 )
+full_timing_graph.update_layout(template=made_by_watermark)
 full_timing_graph.update_traces(visible="legendonly")
 full_timing_graph.data[3].visible = True
 full_applications_graph = px.line(
@@ -52,6 +71,7 @@ full_applications_graph = px.line(
 )
 full_applications_graph.update_traces(visible="legendonly")
 full_applications_graph.data[3].visible = True
+full_applications_graph.update_layout(template=made_by_watermark)
 
 df_issaquah_timing = df[df["city"] == "Issaquah"].copy()
 df_issaquah_timing["color"] = "Permit Issue Time"
@@ -73,22 +93,23 @@ issaquah_applications = px.line(
     line_shape="linear",
     title="Issaquah: Number of New Single Family Permit Applications in the Last Year",
 )
+
+issaquah_double_fig = make_subplots(specs=[[{"secondary_y": True}]])
+issaquah_applications.update_traces(yaxis="y2")
+issaquah_double_fig.add_traces(issaquah_timing.data + issaquah_applications.data)
+issaquah_double_fig.update_layout(
+    title="Issaquah: Permit Issue Time vs. Number of Applications",
+    yaxis=dict(title="Median Permit Issue Time (Days)"),
+    yaxis2=dict(title="Number of Applications"),
+)
+issaquah_double_fig.for_each_trace(lambda t: t.update(line=dict(color=t.marker.color)))
+issaquah_double_fig.update_layout(template=made_by_watermark)
 drop_down = dcc.Dropdown(
     id="city_combined_dropdown",
     options=[{"label": city, "value": city} for city in df["city"].unique()],
     value="Kirkland",
     className="city_combined_container",
 )
-
-subplot_fig = make_subplots(specs=[[{"secondary_y": True}]])
-issaquah_applications.update_traces(yaxis="y2")
-subplot_fig.add_traces(issaquah_timing.data + issaquah_applications.data)
-subplot_fig.update_layout(
-    title="Issaquah: Permit Issue Time vs. Number of Applications",
-    yaxis=dict(title="Median Permit Issue Time (Days)"),
-    yaxis2=dict(title="Number of Applications"),
-)
-subplot_fig.for_each_trace(lambda t: t.update(line=dict(color=t.marker.color)))
 
 layout = html.Div(
     children=[
@@ -101,10 +122,12 @@ layout = html.Div(
             While permitting times did skyrocket during the pandemic, this problem predates covid.
 
 
-            For the purpose of this analysis, I'm measuring permitting time by calculating the number of days between the date a permit was issued and
-             the date the permit application for that same permit was submitted.
-            Due to data quality issues, this analysis only uses permit applications for new single family homes. I'll be primarily focusing on permitting
-             data for the cities of Kirkland, WA and Bellevue, WA.
+            For the purpose of this analysis, I'm measuring permitting time by calculating the number of days between the date a permit was issued and 
+            the date the permit application for that same permit was submitted. Then for each date, take January 1st, 2023 as an example, I calculate 
+            the median number of days between the permit application date and permit issue date for all permits issued up to 365 days before the chosen date. 
+            So the data for January 1st, 2023 shows median number of days it took to get a permit for all permits issued from January 1st, 2022 to January 1st 2023.
+            Due to data quality issues, this analysis only uses permit applications for new single family homes. I'll be primarily focusing on permitting data for the 
+            cities of Kirkland, WA and Bellevue, WA.
 
             ## Kirkland
             This graph of the median number of days between permit application and issue dates for new single family home permits over time in the City of
@@ -166,7 +189,7 @@ layout = html.Div(
             until 2008.
             """
         ),
-        dcc.Graph(id="issaquah_combined_plot", figure=subplot_fig),
+        dcc.Graph(id="issaquah_combined_plot", figure=issaquah_double_fig),
         dcc.Markdown(
             """
             In general, the difference in the exact timing of increases in applications and increases in permitting times suggest other factors such as staffing and/or 
@@ -234,6 +257,7 @@ def update_combined_graph(option_chosen):
         yaxis=dict(title="Median Permit Issue Time (Days)"),
         yaxis2=dict(title="Number of Applications"),
     )
+    subplot_fig.update_layout(template=made_by_watermark)
     subplot_fig.for_each_trace(lambda t: t.update(line=dict(color=t.marker.color)))
 
     return subplot_fig
