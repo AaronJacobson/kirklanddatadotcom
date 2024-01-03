@@ -6,6 +6,7 @@ from dash import Input, Output, callback, dcc, html
 from plotly.subplots import make_subplots
 
 from pages.config import PERMIT_TIME_URL
+from util.logging import log_info
 
 dash.register_page(__name__)
 
