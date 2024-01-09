@@ -228,6 +228,12 @@ layout = html.Div(
     [Input(component_id="city_combined_dropdown", component_property="value")],
 )
 def update_combined_graph(option_chosen):
+    log_info(
+        event_name="permitting_time-update_combined_graph",
+        dimensions={
+            "option_chosen": option_chosen,
+        },
+    )
     df_filtered = df[df["city"] == option_chosen]
     df_filtered_timing = df_filtered[["date", "Median Permit Issue Time (Days)"]].copy()
     df_filtered_timing["color"] = "Permit Issue Time"
